@@ -1,0 +1,17 @@
+!power {{
+ --name | @{nickname}
+ --leftsub | Brawlin
+ --attack: | [[ [$ATK] 5d12!!k1 + ?{Modifier|0} ]] vs 5
+--?? $ATK.ones >= 3 ?? Warning: |  Possible botch!
+ --?? $ATK >= 5 ?? Damage: |  [[ 3d8!!k1 ]] 
+ --?? $ATK.total > 30 ?? Raises:| Five 
+ --?? $ATK.total > 24 AND $ATK.total < 30 ??  Raises:| Four 
+ --?? $ATK.total > 19 AND $ATK.total < 25 ??  Raises:| Three
+ --?? $ATK.total > 14 AND $ATK.total < 20 ??  Raises:| Two
+ --?? $ATK.total > 9 AND $ATK.total < 15 ??  Raises:| One
+ --~~~
+ --?? $ATK >= 5 ?? Location: |  [[ 1d20+2 ]]
+ -- Head Damage: | [[2d6!!]]
+ -- Gizzard Damage: | [[1d6!!]]
+--Special: |  Wind damage. Make vigour check and take delta in damage
+}}
