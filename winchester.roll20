@@ -1,11 +1,12 @@
 !power {{
  --name | @{nickname}
- --leftsub | Shootin The Varmin
+ --leftsub | Shootin The Varmint
  --rightsub | Fancified Winchester 76
  --Attack: | [[ [$ATK] @{shootinlvl}@{quidtype}!!k1 +  1 + ?{Modifier|0} ]] vs 5
- --?? $ATK.ones >= 3 ?? Warning: |  Possible botch!
+ --?? $ATK.ones >= floor(@{shootinlvl} / 2) ?? Warning: |  Possible botch!
 --?? $ATK < 5 ?? !Alert:| ~C ~~~***Missed. Want to use a chip?***~~~ ~C
  --Damage: |  [[ [$DAM] 4d8!!+2 ]] (+[[ [$HEAD] 2d8!! ]] h / +[[ [$GIZ] 1d8!! ]] g)
+ --Test: | ($DAM + $HEAD)
  --?? $ATK.total > 30 ?? Raises:| Five 
  --?? $ATK.total > 24 AND $ATK.total < 30 ??  Raises:| Four 
  --?? $ATK.total > 19 AND $ATK.total < 25 ??  Raises:| Three
