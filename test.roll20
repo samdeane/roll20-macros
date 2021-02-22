@@ -1,24 +1,24 @@
 !power {{
 --name | @{nickname}
 --leftsub | Testin
---hroll |  [[ [$LOC] 1d20 ]]
 --Attack: | [[ [$ATK] @{shootinlvl}@{quidtype}!!k1 +  1 + ?{Modifier|0} ]] vs ?{Target|5}
---Damage: |  [[ [$DAM] 4d8!!+2 ]] ( + [[ [$HEAD] 2d8!! ]]h / + [[ [$GIZ] 1d8!! ]]g)
---?? $LOC == 1 OR $LOC == 2 ?? Location:| [^LOC] Right Leg
---?? $LOC == 3 OR $LOC == 4 ?? Location:| [^LOC] Left Leg
---?? $LOC == 11 OR $LOC == 12 ?? Location:| [^LOC] Right Arm
---?? $LOC == 13 OR $LOC == 14 ?? Location:| [^LOC] Left Leg
---?? $LOC >= 15 AND $LOC <= 19 ?? Location:| [^LOC] Upper Guts
---?? $LOC >= 5 AND $LOC <= 9 ?? Location:| [^LOC] Lower Guts
---?? $LOC == 10 ?? Location:| [^LOC] Gizzard ([^DAM] + [^GIZ])
---?? $LOC == 20 ?? Location:| [^LOC] Head ([^DAM] + [^HEAD])
---?? $ATK.ones >= floor(@{shootinlvl} / 2) ?? Warning: |  Possible botch!
+--?? $ATK.ones >= floor(@{shootinlvl} / 2) ?? Warning: |  Oh dear, that was a botch!
 --?? $ATK < ?{Target} ?? !Alert:| ~C ~~~***Missed. Want to use a chip?***~~~ ~C
---?? floor($ATK / ?{Target} ) == 6 ?? Raises:| Five 
---?? floor($ATK / ?{Target} ) == 5 ?? Raises:| Four 
---?? floor($ATK / ?{Target} ) == 4 ?? Raises:| Three 
---?? floor($ATK / ?{Target} ) == 3 ?? Raises:| Two 
---?? floor($ATK / ?{Target} ) == 2 ?? Raises:| One 
---~~~
 --?? $ATK < ?{Target} ?? Misses: | [[1d6]] [[1d6]] [[1d6]] [[1d6]]
+--?? $ATK / ?{Target} > 6 ?? Raises:| 5+
+--?! floor( $ATK / ?{Target} ) -eq 5 !? Raises2:| Four 
+--?! floor( $ATK / ?{Target} ) -eq 4 !? Raises3:| Three 
+--?! floor( $ATK / ?{Target} ) -eq 3 !? Raises:4| Two 
+--?! floor( $ATK / ?{Target} ) -eq 2 !? Raises5:| One 
+
+--?? $LOC == 1 OR $LOC == 2 ?? Damage:| [^DAM] in the Right Leg
+--?? $LOC == 3 OR $LOC == 4 ?? Damage:| [^DAM] in the Left Leg
+--?? $LOC == 11 OR $LOC == 12 ?? Damage:| [^DAM] in the Right Arm
+--?? $LOC == 13 OR $LOC == 14 ?? Damage:| [^DAM] in the Left Leg
+--?? $LOC >= 15 AND $LOC <= 19 ?? Damage:| [^DAM] in the Upper Guts
+--?? $LOC >= 5 AND $LOC <= 9 ?? Damage:| [^DAM] in the Lower Guts
+--?? $LOC == 10 ?? Damage:| [^DAM] + [^GIZ] in the Gizzards 
+--?? $LOC == 20 ?? Damage:| [^DAM] + [^HEAD] in the Head
+--~~~
+--Rolls: |  loc: [[ [$LOC] 1d20 ]] dam: [[ [$DAM] 4d8!!+2 ]] head: [[ [$HEAD] 2d8!! ]] giz: [[ [$GIZ] 1d8!! ]]
 }}

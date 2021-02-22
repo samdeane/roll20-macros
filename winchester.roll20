@@ -4,7 +4,7 @@
  --rightsub | Fancified Winchester 76
 --hroll |  [[ [$LOC] 1d20 ]]
 --Attack: | [[ [$ATK] @{shootinlvl}@{quidtype}!!k1 +  1 + ?{Modifier|0} ]] vs ?{Target|5}
---Damage: |  [[ [$DAM] 4d8!!+2 ]] ( + [[ [$HEAD] 2d8!! ]]h / + [[ [$GIZ] 1d8!! ]]g)
+--Damage: |  [[ [$DAM] [NH] 4d8!!+2 ]] ( + [[ [$HEAD] 2d8!! ]] head / + [[ [$GIZ] 1d8!! ]] giz)
 --?? $LOC == 1 OR $LOC == 2 ?? Location:| [^LOC] Right Leg
 --?? $LOC == 3 OR $LOC == 4 ?? Location:| [^LOC] Left Leg
 --?? $LOC == 11 OR $LOC == 12 ?? Location:| [^LOC] Right Arm
@@ -16,10 +16,10 @@
 --~~~
 --?? $ATK.ones >= floor(@{shootinlvl} / 2) ?? Warning: |  Possible botch!
 --?? $ATK < ?{Target} ?? !Alert:| ~C ~~~***Missed. Want to use a chip?***~~~ ~C
---?? $ATK.total > 30 ?? Raises:| Five 
---?? $ATK.total > 24 AND $ATK.total < 30 ??  Raises:| Four 
---?? $ATK.total > 19 AND $ATK.total < 25 ??  Raises:| Three
---?? $ATK.total > 14 AND $ATK.total < 20 ??  Raises:| Two
---?? $ATK.total > 9 AND $ATK.total < 15 ??  Raises:| One
+--?? $ATK > 30 ?? Raises:| Five 
+--?? $ATK > 24 AND $ATK < 30 ??  Raises:| Four 
+--?? $ATK > 19 AND $ATK < 25 ??  Raises:| Three
+--?? $ATK > 14 AND $ATK < 20 ??  Raises:| Two
+--?? $ATK > 9 AND $ATK < 15 ??  Raises:| One
 --?? $ATK <= 4 ?? Misses: | [[1d6]] [[1d6]] [[1d6]] [[1d6]]
 }}

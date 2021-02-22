@@ -1,28 +1,26 @@
 !power {{
- --name | @{nickname}
- --leftsub | Fightin
- --rightsub | Cutlass
- --attack: | [[ [$ATK] @{repeating_fightin_$1_fightinlvl}@{nimdtype}!!k1 + 0 + ?{Hit Modifier|0} ]] vs ?{Level|5}
-
- --?? $ATK.ones >= 3 ?? Warning: |  Possible botch!
- --?? $ATK < ?{Level} ?? !Alert:| ~C ~~~***Missed. Want to use a chip?***~~~ ~C
- --Str Damage: |   [[ 3d8!!k1 + ?{Damage Mod|0} ]]  
- --Weapon Damage: |   [[ 2d8!! ]]  
- --?? $ATK.total > 30 ?? Raises:| Five 
- --?? $ATK.total > 24 AND $ATK.total < 30 ??  Raises:| Four 
- --?? $ATK.total > 19 AND $ATK.total < 25 ??  Raises:| Three
- --?? $ATK.total > 14 AND $ATK.total < 20 ??  Raises:| Two
- --?? $ATK.total > 9 AND $ATK.total < 15 ??  Raises:| One
- --~~~
--- Location: |  [[ [$LOC] 1d20 ]]
---?? $LOC == 1 OR $LOC == 2 ?? In The:| Right Leg
---?? $LOC == 3 OR $LOC == 4 ?? In The:| Left Leg
---?? $LOC == 11 OR $LOC == 12 ?? In The:| Right Arm
---?? $LOC == 13 OR $LOC == 14 ?? In The:| Left Leg
---?? $LOC >= 15 AND $LOC <= 19 ?? In The:| Upper Guts
---?? $LOC >= 5 AND $LOC <= 9 ?? In The:| Lower Guts
---?? $LOC == 10 ?? In The:| Gizzard
---?? $LOC == 20 ?? In The:| Head
- -- Head Damage: | [[2d8!!]]
- -- Gizzard Damage: | [[1d8!!]]
+--name | @{nickname}
+--leftsub | Fightin
+--rightsub | Cutlass
+--hroll |  [[ [$LOC] 1d20 ]]
+--attack: | [[ [$ATK] @{repeating_fightin_$1_fightinlvl}@{nimdtype}!!k1 + 0 + ?{Hit Modifier|0} ]] vs ?{Level|5}
+--?? $ATK.ones >= 3 ?? Warning: |  Possible botch!
+--?? $ATK < ?{Level} ?? !Alert:| ~C ~~~***Missed. Want to use a chip?***~~~ ~C
+--Damage: |  S: [[ [$STR] 3d8!!k1 + ?{Damage Mod|0} ]] + W: [[ [$WEP] 2d8!! ]]
+--?? $ATK > 30 ?? Raises:| Five 
+--?? $ATK > 24 AND $ATK < 30 ??  Raises:| Four 
+--?? $ATK > 19 AND $ATK < 25 ??  Raises:| Three
+--?? $ATK > 14 AND $ATK < 20 ??  Raises:| Two
+--?? $ATK > 9 AND $ATK < 15 ??  Raises:| One
+--~~~
+--?? $LOC == 1 OR $LOC == 2 ?? Location:| [^LOC] Right Leg
+--?? $LOC == 3 OR $LOC == 4 ?? Location:| [^LOC] Left Leg
+--?? $LOC == 11 OR $LOC == 12 ?? Location:| [^LOC] Right Arm
+--?? $LOC == 13 OR $LOC == 14 ?? Location:| [^LOC] Left Leg
+--?? $LOC >= 15 AND $LOC <= 19 ?? Location:| [^LOC] Upper Guts
+--?? $LOC >= 5 AND $LOC <= 9 ?? Location:| [^LOC] Lower Guts
+--?? $LOC == 10 ?? Location:| [^LOC] Gizzard ([^DAM] + [^GIZ])
+--?? $LOC == 20 ?? Location:| [^LOC] Head ([^DAM] + [^HEAD])
+-- Head Damage: | [[2d8!!]]
+-- Gizzard Damage: | [[1d8!!]]
 }}
