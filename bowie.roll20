@@ -17,7 +17,7 @@
 --?? $LOC == 1 OR $LOC == 2 ?? In The:| Right Leg
 --?? $LOC == 3 OR $LOC == 4 ?? In The:| Left Leg
 --?? $LOC == 11 OR $LOC == 12 ?? In The:| Right Arm
---?? $LOC == 13 OR $LOC == 14 ?? In The:| Left Leg
+--?? $LOC == 13 OR $LOC == 14 ?? In The:| Left Arm
 --?? $LOC >= 15 AND $LOC <= 19 ?? In The:| Upper Guts
 --?? $LOC >= 5 AND $LOC <= 9 ?? In The:| Lower Guts
 --?? $LOC == 10 ?? In The:| Gizzard

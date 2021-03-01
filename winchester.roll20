@@ -3,12 +3,12 @@
  --leftsub | Shoots The Varmint
  --rightsub | Fancified Winchester 76
 --hroll |  [[ [$LOC] 1d20 ]]
---Attack: | [[ [$ATK] @{shootinlvl}@{quidtype}!!k1 +  1 + ?{Modifier|0} ]] vs ?{Target|5}
---Damage: |  [[ [$DAM] [NH] 4d8!!+2 ]] ( + [[ [$HEAD] 2d8!! ]] head / + [[ [$GIZ] 1d8!! ]] giz)
+--Attack: | [[ [$ATK] @{shootinlvl}@{defdtype}!!k1 +  1 + ?{Modifier|0} ]] vs ?{Target|5}
+--Damage: |  [[ [$DAM] [NH] 4d8!!+2 ]] ( + [[ [$HEAD] 2d8!! ]] head / [[ [$GIZ] 1d8!! ]] giz)
 --?? $LOC == 1 OR $LOC == 2 ?? Location:| [^LOC] Right Leg
 --?? $LOC == 3 OR $LOC == 4 ?? Location:| [^LOC] Left Leg
 --?? $LOC == 11 OR $LOC == 12 ?? Location:| [^LOC] Right Arm
---?? $LOC == 13 OR $LOC == 14 ?? Location:| [^LOC] Left Leg
+--?? $LOC == 13 OR $LOC == 14 ?? Location:| [^LOC] Left Arm
 --?? $LOC >= 15 AND $LOC <= 19 ?? Location:| [^LOC] Upper Guts
 --?? $LOC >= 5 AND $LOC <= 9 ?? Location:| [^LOC] Lower Guts
 --?? $LOC == 10 ?? Location:| [^LOC] Gizzard ([^DAM] + [^GIZ])

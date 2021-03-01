@@ -2,7 +2,7 @@
  --name | @{charname} Initiative
 --leftsub | @{quilvl} 
 --rightsub | @{quidtype}	
---Roll| [[ [$INIT] @{quilvl}@{quidtype}!!k1+?{Modifier|0} ]]
+--Roll| [[ [$INIT] ( @{quilvl}@{quidtype}!!k1+?{Modifier|0} ) / 5 ]]
 --?? $INIT.total > 19 ?? Cards:| Five 
 --?? $INIT.total > 14 AND $INIT.total < 20 ??  Cards:| Four 
 --?? $INIT.total > 9 AND $INIT.total < 15 ??  Cards:| Three
@@ -11,3 +11,5 @@
 
 --?? $INIT.ones >= 3 ?? Warning: | Possible  botch!
 }}
+
+[[(floor((((4d10!!k1)+?{Modifier|0})/5)+1))]]

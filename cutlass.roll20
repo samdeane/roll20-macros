@@ -2,7 +2,6 @@
 --name | @{nickname}
 --leftsub | Fightin
 --rightsub | Cutlass
---hroll |  [[ [$LOC] 1d20 ]]
 --attack: | [[ [$ATK] @{repeating_fightin_$1_fightinlvl}@{nimdtype}!!k1 + 0 + ?{Hit Modifier|0} ]] vs ?{Level|5}
 --?? $ATK.ones >= 3 ?? Warning: |  Possible botch!
 --?? $ATK < ?{Level} ?? !Alert:| ~C ~~~***Missed. Want to use a chip?***~~~ ~C
@@ -16,11 +15,11 @@
 --?? $LOC == 1 OR $LOC == 2 ?? Location:| [^LOC] Right Leg
 --?? $LOC == 3 OR $LOC == 4 ?? Location:| [^LOC] Left Leg
 --?? $LOC == 11 OR $LOC == 12 ?? Location:| [^LOC] Right Arm
---?? $LOC == 13 OR $LOC == 14 ?? Location:| [^LOC] Left Leg
+--?? $LOC == 13 OR $LOC == 14 ?? Location:| [^LOC] Left Arm
 --?? $LOC >= 15 AND $LOC <= 19 ?? Location:| [^LOC] Upper Guts
 --?? $LOC >= 5 AND $LOC <= 9 ?? Location:| [^LOC] Lower Guts
 --?? $LOC == 10 ?? Location:| [^LOC] Gizzard ([^DAM] + [^GIZ])
 --?? $LOC == 20 ?? Location:| [^LOC] Head ([^DAM] + [^HEAD])
--- Head Damage: | [[2d8!!]]
--- Gizzard Damage: | [[1d8!!]]
+--~~~
+--Rolls: |  loc: [[ [$LOC] 1d20 + 2 ]] dam: [[ [$DAM] 4d8!!+2 ]] head: [[ [$HEAD] 2d8!! ]] giz: [[ [$GIZ] 1d8!! ]]
 }}
