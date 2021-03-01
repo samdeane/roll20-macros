@@ -17,23 +17,30 @@ struct Macro {
     }
     
     var location: String {
-        """
-        --?? $LOC == 1 OR $LOC == 2 ?? Damage:| [^DAM] in the Right Leg
-        --?? $LOC == 3 OR $LOC == 4 ?? Damage:| [^DAM] in the Left Leg
-        --?? $LOC == 11 OR $LOC == 12 ?? Damage:| [^DAM] in the Right Arm
-        --?? $LOC == 13 OR $LOC == 14 ?? Damage:| [^DAM] in the Left Leg
-        --?? $LOC >= 15 AND $LOC <= 19 ?? Damage:| [^DAM] in the Upper Guts
-        --?? $LOC >= 5 AND $LOC <= 9 ?? Damage:| [^DAM] in the Lower Guts
-        --?? $LOC == 10 ?? Damage:| [^DAM] + [^GIZ] in the Gizzards
-        --?? $LOC == 20 ?? Damage:| [^DAM] + [^HEAD] in the Head
-        """
+        switch kind {
+            case .initiative:
+                return ""
+                
+            default:
+                return
+                    """
+                    --?? $LOC == 1 OR $LOC == 2 ?? Damage:| [^DAM] in the Right Leg
+                    --?? $LOC == 3 OR $LOC == 4 ?? Damage:| [^DAM] in the Left Leg
+                    --?? $LOC == 11 OR $LOC == 12 ?? Damage:| [^DAM] in the Right Arm
+                    --?? $LOC == 13 OR $LOC == 14 ?? Damage:| [^DAM] in the Left Leg
+                    --?? $LOC >= 15 AND $LOC <= 19 ?? Damage:| [^DAM] in the Upper Guts
+                    --?? $LOC >= 5 AND $LOC <= 9 ?? Damage:| [^DAM] in the Lower Guts
+                    --?? $LOC == 10 ?? Damage:| [^DAM] + [^GIZ] in the Gizzards
+                    --?? $LOC == 20 ?? Damage:| [^DAM] + [^HEAD] in the Head
+                    """
+        }
     }
     
     var left: String {
         switch kind {
             case .melee: return "Fightin"
             case .ranged: return "Shootin"
-            case .initiative: return "@{quilvl}"
+            case .initiative: return "Initiative"
         }
     }
     
@@ -41,7 +48,7 @@ struct Macro {
         switch kind {
             case .melee: return label
             case .ranged: return label
-            case .initiative: return "@{quidtype}"
+            case .initiative: return "@{quilvl}@{quidtype}"
         }
     }
 
@@ -76,7 +83,7 @@ struct Macro {
                 return "loc: [[ [$LOC] 1d20 ]] dam: [[ [$DAM] 4d8!!+2 ]] head: [[ [$HEAD] 2d8!! ]] giz: [[ [$GIZ] 1d8!! ]]"
 
             case .initiative:
-                return "[[ [$INIT] 1 + floor( ( @{quilvl}@{quidtype}!!k1+?{Modifier|0} ) / 5 ) ]]"
+                return "[[ [$INIT] 1 + floor( ( @{quilvl}@{quidtype}!!k1 + ?{bonus|0} ) / 5 ) ]]"
         }
     }
     
@@ -86,10 +93,8 @@ struct Macro {
         --name | @{nickname}
         --leftsub | \(left)
         --rightsub | \(right)
-        \(body)
-        \(location)
-        --~~~
-        --Rolls: |  \(rolls)
+        \(body)\(location)--~~~
+        --Dice: |  \(rolls)
         }}
         """
     }
