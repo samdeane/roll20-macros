@@ -1,9 +1,20 @@
 enum Kind {
-    case ranged
+    case ranged(Gun)
     case melee
-    case initiative
+    case initiative(Int)
     
 }
+
+struct Gun {
+    let name: String
+    let level: Int
+    let hitBonus: Int
+    let damage: String
+    let head: String
+    let gizards: String
+}
+
+let fancyWinchester = Gun(name: "Fancified '76", level: 4, hitBonus: 1, damage: "4d8!! + 2", head: "2d8!!", gizards: "1d8!!")
 
 struct Macro {
     let name: String
@@ -24,22 +35,39 @@ struct Macro {
             default:
                 return
                     """
-                    --?? $LOC == 1 OR $LOC == 2 ?? Damage:| [^DAM] in the Right Leg
-                    --?? $LOC == 3 OR $LOC == 4 ?? Damage:| [^DAM] in the Left Leg
-                    --?? $LOC == 11 OR $LOC == 12 ?? Damage:| [^DAM] in the Right Arm
-                    --?? $LOC == 13 OR $LOC == 14 ?? Damage:| [^DAM] in the Left Leg
-                    --?? $LOC >= 15 AND $LOC <= 19 ?? Damage:| [^DAM] in the Upper Guts
-                    --?? $LOC >= 5 AND $LOC <= 9 ?? Damage:| [^DAM] in the Lower Guts
-                    --?? $LOC == 10 ?? Damage:| [^DAM] + [^GIZ] in the Gizzards
-                    --?? $LOC == 20 ?? Damage:| [^DAM] + [^HEAD] in the Head
+                    --?? $LOC == 1 OR $LOC == 2 ?? Hits vs ?{Target} *1 | For [^DAM] in the Right Leg
+                    --?? $LOC == 3 OR $LOC == 4 ?? Hits vs ?{Target} *2 | For [^DAM] in the Left Leg
+                    --?? $LOC == 11 OR $LOC == 12 ?? Hits vs ?{Target} *3 | For [^DAM] in the Right Arm
+                    --?? $LOC == 13 OR $LOC == 14 ?? Hits vs ?{Target} *4 | For [^DAM] in the Left Leg
+                    --?? $LOC >= 15 AND $LOC <= 19 ?? Hits vs ?{Target} *5 | For [^DAM] in the Upper Guts
+                    --?? $LOC >= 5 AND $LOC <= 9 ?? Hits vs ?{Target} *6 | For [^DAM] in the Lower Guts
+                    --?? $LOC == 10 ?? Hits vs ?{Target} *7 | For [^DAM] + [^GIZ] in the Gizzards
+                    --?? $LOC == 20 ?? Hits vs ?{Target} *8 | For [^DAM] + [^HEAD] in the Head
+                    --skipto*2|Done
+
+                    --:Missed| Skip here for a miss
+                    --Missed :| $$#900|***[^ATK] is a miss vs ?{Target}!***$$
+
+                    --:Done|
+
                     """
+
+            //                    --?? ( $ATK >= ?{Target} ) AND ( $LOC == 1 OR $LOC == 2 ) ?? Hits For:| [^DAM] in the Right Leg
+            //                    --?? ( $ATK >= ?{Target} ) AND ( $LOC == 3 OR $LOC == 4 ) ?? Hits For:| [^DAM] in the Left Leg
+            //                    --?? ( $ATK >= ?{Target} ) AND ( $LOC == 11 OR $LOC == 12 ) ?? Hits For:| [^DAM] in the Right Arm
+            //                    --?? ( $ATK >= ?{Target} ) AND ( $LOC == 13 OR $LOC == 14 ) ?? Hits For:| [^DAM] in the Left Leg
+            //                    --?? ( $ATK >= ?{Target} ) AND ( $LOC >= 15 AND $LOC <= 19 ) ?? Hits For:| [^DAM] in the Upper Guts
+            //                    --?? ( $ATK >= ?{Target} ) AND ( $LOC >= 5 AND $LOC <= 9 ) ?? Hits For:| [^DAM] in the Lower Guts
+            //                    --?? ( $ATK >= ?{Target} ) AND ( $LOC == 10 ) ?? Hits For:| [^DAM] + [^GIZ] in the Gizzards
+            //                    --?? ( $ATK >= ?{Target} ) AND ( $LOC == 20 ) ?? Hits For:| [^DAM] + [^HEAD] in the Head
+
         }
     }
     
     var left: String {
         switch kind {
             case .melee: return "Fightin"
-            case .ranged: return "Shootin"
+            case .ranged: return "Shoots The Varmint"
             case .initiative: return "Initiative"
         }
     }
@@ -47,7 +75,7 @@ struct Macro {
     var right: String {
         switch kind {
             case .melee: return label
-            case .ranged: return label
+            case .ranged(let gun): return gun.name
             case .initiative: return "@{quilvl}@{quidtype}"
         }
     }
@@ -56,19 +84,39 @@ struct Macro {
         switch kind {
             case .initiative:
                 let ranges: [(String,String)] = [
-                    ("== 1", "A solitary one."),
-                    ("== 2", "An unremarkable two."),
-                    ("== 3", "An exiting three."),
-                    ("== 4", "An implausible four."),
-                    ("> 4", "A truly astonishing five.")
+                    ("< 1", "***bugger all*** cards"),
+                    ("== 1", "a ***solitary*** one card"),
+                    ("== 2", "an ***unremarkable*** two cards"),
+                    ("== 3", "an ***exiting*** three cards"),
+                    ("== 4", "an ***implausible*** four cards"),
+                    ("> 4", "a ***truly astonishing*** five cards")
                 ]
 
                 var text = ""
                 for (test, label) in ranges {
-                    text += "--?? $INIT \(test) ?? Cards:| \(label)\n"
+                    text += "--?? $INIT \(test) ?? !Cards:| Has \(label).\n"
                 }
                 return text
                 
+            case .ranged:
+                return
+                    """
+                    --?? $ATK < ?{Target|5} ?? skipto*1|Missed
+                    
+                    """
+                
+            default:
+                return ""
+        }
+    }
+
+    var botch: String {
+        switch kind {
+            case .initiative(let level):
+                return "--?? $INIT.ones > \(level / 2) ?? Arse: |  That was a botch!\n"
+
+            case .ranged(let gun):
+                return "--?? $ATK.ones > \(gun.level / 2) ?? FFS: |  That was a botch!\n"
             default:
                 return ""
         }
@@ -79,23 +127,34 @@ struct Macro {
             case .melee:
                 return "loc: [[ [$LOC] 1d20 + 2 ]] str: [[ [$STR] 3d8!!k1 + ?{Damage Mod|0} ]] + wep: [[ [$WEP] 2d8!! ]] head: [[ [$HEAD] 2d8!! ]] giz: [[ [$GIZ] 1d8!! ]]"
 
-            case .ranged:
-                return "loc: [[ [$LOC] 1d20 ]] dam: [[ [$DAM] 4d8!!+2 ]] head: [[ [$HEAD] 2d8!! ]] giz: [[ [$GIZ] 1d8!! ]]"
+            case .ranged(let gun):
+                return
+                    """
+                    --Attack:| [[ [$ATK] \(gun.level)@{defdtype}!!k1 +  \(gun.hitBonus) + ?{Modifier|0} ]] vs ?{Target|5}
+                    --Location:| [[ [$LOC] 1d20 ]]
+                    --Damage:| [[ [$DAM] \(gun.damage) ]]
+                    --Head:| + [[ [$HEAD] \(gun.head) ]]
+                    --Gizards:| +  [[ [$GIZ] \(gun.gizards) ]]
+                    """
 
-            case .initiative:
-                return "[[ [$INIT] 1 + floor( ( @{quilvl}@{quidtype}!!k1 + ?{bonus|0} ) / 5 ) ]]"
+            case .initiative(let level):
+                return "[[ [$INIT] 1 + floor( ( \(level)@{quidtype}!!k1 + ?{bonus|0} ) / 5 ) ]]"
         }
     }
     
     var macro: String {
         """
         !power {{
+        
         --name | @{nickname}
         --leftsub | \(left)
         --rightsub | \(right)
-        \(body)\(location)--~~~
-        --Dice: |  \(rolls)
+        
+        \(botch)\(body)\(location)--~~~
+        \(rolls)
+        
         }}
+        
         """
     }
 }
@@ -104,11 +163,11 @@ let macros = [
 //    Macro("bowie", kind: .melee),
 //    Macro("brawlin", kind: .melee),
 //    Macro("cutlass", kind: .melee),
-    Macro("initiative", kind: .initiative),
-//    Macro("winchester", kind: .ranged),
+//    Macro("initiative", kind: .initiative(4)),
+    Macro("winchester", kind: .ranged(fancyWinchester)),
 ]
 
 for macro in macros {
-    print("\n\n\(macro.name).roll20:\n")
+//    print("\n\n\(macro.name).roll20:\n")
     print(macro.macro)
 }
