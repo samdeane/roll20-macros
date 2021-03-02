@@ -103,7 +103,7 @@ struct Macro {
                 var tests: [String] = []
                 var labels: [String] = []
                 var skip = 2
-                let count = 5
+                let count = 10
                 for n in 1 ... count {
                     tests.insert("--?! $ATK / \(n+1) -ge ?{Target} !? skipto*\(count-n+2)|RaiseLabel\(n)", at: 0)
                     labels.insert(
@@ -170,10 +170,10 @@ struct Macro {
                 return
                     """
                     --Attack:| [[ [$ATK] \(gun.level)@{defdtype}!!k1 +  \(gun.hitBonus) + ?{Modifier|0} ]] vs ?{Target|5}
-                    --Location:| [[ [$LOC] 1d20 ]]
-                    --Damage:| [[ [$DAM] \(gun.damage) ]]
-                    --Head:| + [[ [$HEAD] \(gun.head) ]]
-                    --Gizards:| +  [[ [$GIZ] \(gun.gizards) ]]
+                    --Location:| [[ [$LOC] [NH] 1d20 ]]
+                    --Damage:| [[ [$DAM] [NH] \(gun.damage) ]]
+                    --Head:| + [[ [$HEAD] [NH] \(gun.head) ]]
+                    --Gizards:| +  [[ [$GIZ] [NH] \(gun.gizards) ]]
                     """
 
             case .initiative(let level):
