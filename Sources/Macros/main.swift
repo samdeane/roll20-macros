@@ -99,10 +99,49 @@ struct Macro {
                 return text
                 
             case .ranged:
+                
+                var tests: [String] = []
+                var labels: [String] = []
+                var skip = 2
+                let count = 5
+                for n in 1 ... count {
+                    tests.insert("--?! $ATK / \(n+1) -ge ?{Target} !? skipto*\(count-n+2)|RaiseLabel\(n)", at: 0)
+                    labels.insert(
+                        """
+                        --:RaiseLabel\(n)|
+                        --!Raises *\(n) |  [^ATK] is \(n) raises vs ?{Target}
+                        --skipto*\((2*count)-n+3)|Done
+                        """, at: 0)
+                    skip += 1
+                }
+                
+                let raiseTests = tests.joined(separator: "\n")
+                let raiseLabels = labels.joined(separator: "\n")
+                
                 return
                     """
                     --?? $ATK < ?{Target|5} ?? skipto*1|Missed
                     
+                    --?? $LOC == 1 OR $LOC == 2 ?? Hits *1 | [^DAM] in the Right Leg
+                    --?? $LOC == 3 OR $LOC == 4 ?? Hits *2 | [^DAM] in the Left Leg
+                    --?? $LOC == 11 OR $LOC == 12 ?? Hits *3 | [^DAM] in the Right Arm
+                    --?? $LOC == 13 OR $LOC == 14 ?? Hits *4 | [^DAM] in the Left Leg
+                    --?? $LOC >= 15 AND $LOC <= 19 ?? Hits *5 | [^DAM] in the Upper Guts
+                    --?? $LOC >= 5 AND $LOC <= 9 ?? Hits *6 | [^DAM] in the Lower Guts
+                    --?? $LOC == 10 ?? Hits *7 | [^DAM] + [^GIZ] in the Gizzards
+                    --?? $LOC == 20 ?? Hits *8 | [^DAM] + [^HEAD] in the Head
+                    
+                    \(raiseTests)
+                    --skipto*\(count+2)|Done
+
+                    \(raiseLabels)
+
+                    --:Missed| Skip here for a miss
+                    --Missed :| $$#900|***[^ATK] is a miss vs ?{Target}!***$$
+
+                    --:Done|
+
+
                     """
                 
             default:
@@ -150,7 +189,7 @@ struct Macro {
         --leftsub | \(left)
         --rightsub | \(right)
         
-        \(botch)\(body)\(location)--~~~
+        \(botch)\(body)--~~~
         \(rolls)
         
         }}
