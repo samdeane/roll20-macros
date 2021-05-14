@@ -27,6 +27,14 @@ struct Macro {
         self.label = label
     }
     
+    var target: String {
+        return "?{Target}"
+    }
+    
+    var versusTarget: String {
+        return "vs \(target)"
+    }
+    
     var location: String {
         switch kind {
             case .initiative:
@@ -35,18 +43,18 @@ struct Macro {
             default:
                 return
                     """
-                    --?? $LOC == 1 OR $LOC == 2 ?? Hits vs ?{Target} *1 | For [^DAM] in the Right Leg
-                    --?? $LOC == 3 OR $LOC == 4 ?? Hits vs ?{Target} *2 | For [^DAM] in the Left Leg
-                    --?? $LOC == 11 OR $LOC == 12 ?? Hits vs ?{Target} *3 | For [^DAM] in the Right Arm
-                    --?? $LOC == 13 OR $LOC == 14 ?? Hits vs ?{Target} *4 | For [^DAM] in the Left Leg
-                    --?? $LOC >= 15 AND $LOC <= 19 ?? Hits vs ?{Target} *5 | For [^DAM] in the Upper Guts
-                    --?? $LOC >= 5 AND $LOC <= 9 ?? Hits vs ?{Target} *6 | For [^DAM] in the Lower Guts
-                    --?? $LOC == 10 ?? Hits vs ?{Target} *7 | For [^DAM] + [^GIZ] in the Gizzards
-                    --?? $LOC == 20 ?? Hits vs ?{Target} *8 | For [^DAM] + [^HEAD] in the Head
+                    --?? $LOC == 1 OR $LOC == 2 ?? Hits \(versusTarget) *1 | For [^DAM] in the Right Leg
+                    --?? $LOC == 3 OR $LOC == 4 ?? Hits \(versusTarget) *2 | For [^DAM] in the Left Leg
+                    --?? $LOC == 11 OR $LOC == 12 ?? Hits \(versusTarget) *3 | For [^DAM] in the Right Arm
+                    --?? $LOC == 13 OR $LOC == 14 ?? Hits \(versusTarget) *4 | For [^DAM] in the Left Leg
+                    --?? $LOC >= 15 AND $LOC <= 19 ?? Hits \(versusTarget) *5 | For [^DAM] in the Upper Guts
+                    --?? $LOC >= 5 AND $LOC <= 9 ?? Hits \(versusTarget) *6 | For [^DAM] in the Lower Guts
+                    --?? $LOC == 10 ?? Hits \(versusTarget) *7 | For [^DAM] + [^GIZ] in the Gizzards
+                    --?? $LOC == 20 ?? Hits \(versusTarget) *8 | For [^DAM] + [^HEAD] in the Head
                     --skipto*2|Done
 
                     --:Missed| Skip here for a miss
-                    --Missed :| $$#900|***[^ATK] is a miss vs ?{Target}!***$$
+                    --Missed :| $$#900|***[^ATK] is a miss \(versusTarget)!***$$
 
                     --:Done|
 
@@ -105,11 +113,11 @@ struct Macro {
                 var skip = 2
                 let count = 10
                 for n in 1 ... count {
-                    tests.insert("--?! $ATK / \(n+1) -ge ?{Target} !? skipto*\(count-n+2)|RaiseLabel\(n)", at: 0)
+                    tests.insert("--?! $ATK / \(n+1) -ge \(target) !? skipto*\(count-n+2)|RaiseLabel\(n)", at: 0)
                     labels.insert(
                         """
                         --:RaiseLabel\(n)|
-                        --!Raises *\(n) |  [^ATK] is \(n) raises vs ?{Target}
+                        --!Raises *\(n) |  [^ATK] is \(n) raises \(versusTarget)
                         --skipto*\((2*count)-n+3)|Done
                         """, at: 0)
                     skip += 1
@@ -137,7 +145,7 @@ struct Macro {
                     \(raiseLabels)
 
                     --:Missed| Skip here for a miss
-                    --Missed :| $$#900|***[^ATK] is a miss vs ?{Target}!***$$
+                    --Missed :| $$#900|***[^ATK] is a miss \(versusTarget)!***$$
 
                     --:Done|
 
