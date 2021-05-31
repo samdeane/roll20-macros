@@ -56,7 +56,7 @@ struct Macro {
             labels.insert(
                 """
                 --:RaiseLabel\(n)|
-                --Raises: *\(n) | \(n) \(versusTarget)
+                --Attack: *\(n) | \(attack) (\(n) raises) \(versusTarget)
                 --skipto*\((2*count)-n+3)|Done
                 """, at: 0)
             skip += 1
@@ -140,9 +140,11 @@ struct Macro {
                     
                     \(location)
                     --~~~
-                    --Attack:| \(attack)
 
                     \(raiseTests)
+                    
+                    --Attack: *0| \(attack)
+                    
                     --skipto*\(count+2)|Done
                     \(raiseLabels)
 
