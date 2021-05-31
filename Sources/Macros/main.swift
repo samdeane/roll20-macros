@@ -56,7 +56,7 @@ struct Macro {
             labels.insert(
                 """
                 --:RaiseLabel\(n)|
-                --Raises: *\(n) |  [^ATK] is \(n) raises \(versusTarget)
+                --Raises: *\(n) | \(n) \(versusTarget)
                 --skipto*\((2*count)-n+3)|Done
                 """, at: 0)
             skip += 1
@@ -140,6 +140,7 @@ struct Macro {
                     
                     \(location)
                     --~~~
+                    --Attack:| \(attack)
 
                     \(raiseTests)
                     --skipto*\(count+2)|Done
@@ -167,12 +168,22 @@ struct Macro {
         }
     }
     
+    var attack: String {
+        switch kind {
+            case .melee(let weapon):
+                return "[[ [$ATK] \(weapon.level)@{nimdtype}!!k1 + \(weapon.hitBonus) + ?{Modifier|0} ]]"
+            case .ranged(let weapon):
+                return "[[ [$ATK] \(weapon.level)@{defdtype}!!k1 + \(weapon.hitBonus) + ?{Modifier|0} ]]"
+            default:
+                return ""
+        }
+    }
+    
     var rolls: String {
         switch kind {
             case .melee(let weapon):
                 return
                     """
-                    --Attack:| [[ [$ATK] \(weapon.level)@{nimdtype}!!k1 + \(weapon.hitBonus) + ?{Modifier|0} ]]
                     --Location:| [[ [$LOC] [NH] 1d20 ]]
                     --Damage:| Weapon [[ [$DAM] [NH] \(weapon.damage) ]] Strength [[ [$STR] [NH] 3d8!!k1 ]]
                     --Extra:| +Head [[ [$HEAD] [NH] \(weapon.head) ]] +Gizzards  [[ [$GIZ] [NH] \(weapon.gizards) ]]
@@ -181,7 +192,6 @@ struct Macro {
             case .ranged(let weapon):
                 return
                     """
-                    --Attack:| [[ [$ATK] \(weapon.level)@{defdtype}!!k1 + \(weapon.hitBonus) + ?{Modifier|0} ]]
                     --Location:| [[ [$LOC] [NH] 1d20 ]]
                     --Damage:| [[ [$DAM] [NH] \(weapon.damage) ]]
                     --Extra:| +Head [[ [$HEAD] [NH] \(weapon.head) ]] +Gizzards  [[ [$GIZ] [NH] \(weapon.gizards) ]]
