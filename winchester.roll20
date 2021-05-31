@@ -1,25 +1,76 @@
 !power {{
- --name | @{nickname}
- --leftsub | Shoots The Varmint
- --rightsub | Fancified Winchester 76
---hroll |  [[ [$LOC] 1d20 ]]
---Attack: | [[ [$ATK] @{shootinlvl}@{defdtype}!!k1 +  1 + ?{Modifier|0} ]] vs ?{Target|5}
---Damage: |  [[ [$DAM] [NH] 4d8!!+2 ]] ( + [[ [$HEAD] 2d8!! ]] head / [[ [$GIZ] 1d8!! ]] giz)
---?? $LOC == 1 OR $LOC == 2 ?? Location:| [^LOC] Right Leg
---?? $LOC == 3 OR $LOC == 4 ?? Location:| [^LOC] Left Leg
---?? $LOC == 11 OR $LOC == 12 ?? Location:| [^LOC] Right Arm
---?? $LOC == 13 OR $LOC == 14 ?? Location:| [^LOC] Left Arm
---?? $LOC >= 15 AND $LOC <= 19 ?? Location:| [^LOC] Upper Guts
---?? $LOC >= 5 AND $LOC <= 9 ?? Location:| [^LOC] Lower Guts
---?? $LOC == 10 ?? Location:| [^LOC] Gizzard ([^DAM] + [^GIZ])
---?? $LOC == 20 ?? Location:| [^LOC] Head ([^DAM] + [^HEAD])
+
+--name | @{nickname}
+--leftsub | Shoots The Varmint
+--rightsub | Fancified '76
+
+--?? $ATK.ones > 2 ?? FFS: |  That was a botch!
+--?? $ATK < 5 ?? skipto*1|Missed
+
+--?? $LOC == 1 OR $LOC == 2 ?? Hits *1 | [^DAM] in the Right Leg
+--?? $LOC == 3 OR $LOC == 4 ?? Hits *2 | [^DAM] in the Left Leg
+--?? $LOC == 11 OR $LOC == 12 ?? Hits *3 | [^DAM] in the Right Arm
+--?? $LOC == 13 OR $LOC == 14 ?? Hits *4 | [^DAM] in the Left Leg
+--?? $LOC >= 15 AND $LOC <= 19 ?? Hits *5 | [^DAM] in the Upper Guts
+--?? $LOC >= 5 AND $LOC <= 9 ?? Hits *6 | [^DAM] in the Lower Guts
+--?? $LOC == 10 ?? Hits *7 | [^DAM] + [^GIZ] in the Gizzards
+--?? $LOC == 20 ?? Hits *8 | [^DAM] + [^HEAD] in the Head
+
+--?! $ATK / 11 -ge 5 !? skipto*2|RaiseLabel10
+--?! $ATK / 10 -ge 5 !? skipto*3|RaiseLabel9
+--?! $ATK / 9 -ge 5 !? skipto*4|RaiseLabel8
+--?! $ATK / 8 -ge 5 !? skipto*5|RaiseLabel7
+--?! $ATK / 7 -ge 5 !? skipto*6|RaiseLabel6
+--?! $ATK / 6 -ge 5 !? skipto*7|RaiseLabel5
+--?! $ATK / 5 -ge 5 !? skipto*8|RaiseLabel4
+--?! $ATK / 4 -ge 5 !? skipto*9|RaiseLabel3
+--?! $ATK / 3 -ge 5 !? skipto*10|RaiseLabel2
+--?! $ATK / 2 -ge 5 !? skipto*11|RaiseLabel1
+--skipto*12|Done
+
+--:RaiseLabel10|
+--!Raises *10 |  [^ATK] is 10 raises
+--skipto*13|Done
+--:RaiseLabel9|
+--!Raises *9 |  [^ATK] is 9 raises
+--skipto*14|Done
+--:RaiseLabel8|
+--!Raises *8 |  [^ATK] is 8 raises
+--skipto*15|Done
+--:RaiseLabel7|
+--!Raises *7 |  [^ATK] is 7 raises
+--skipto*16|Done
+--:RaiseLabel6|
+--!Raises *6 |  [^ATK] is 6 raises
+--skipto*17|Done
+--:RaiseLabel5|
+--!Raises *5 |  [^ATK] is 5 raises
+--skipto*18|Done
+--:RaiseLabel4|
+--!Raises *4 |  [^ATK] is 4 raises
+--skipto*19|Done
+--:RaiseLabel3|
+--!Raises *3 |  [^ATK] is 3 raises
+--skipto*20|Done
+--:RaiseLabel2|
+--!Raises *2 |  [^ATK] is 2 raises
+--skipto*21|Done
+--:RaiseLabel1|
+--!Raises *1 |  [^ATK] is 1 raises
+--skipto*22|Done
+
+--:Missed| Skip here for a miss
+--Missed :| $$#900|***[^ATK] is a miss !***$$
+
+--:Done|
+
 --~~~
---?? $ATK.ones >= floor(@{shootinlvl} / 2) ?? Warning: |  Possible botch!
---?? $ATK < ?{Target} ?? !Alert:| ~C ~~~***Missed. Want to use a chip?***~~~ ~C
---?? $ATK > 30 ?? Raises:| Five 
---?? $ATK > 24 AND $ATK < 30 ??  Raises:| Four 
---?? $ATK > 19 AND $ATK < 25 ??  Raises:| Three
---?? $ATK > 14 AND $ATK < 20 ??  Raises:| Two
---?? $ATK > 9 AND $ATK < 15 ??  Raises:| One
---?? $ATK <= 4 ?? Misses: | [[1d6]] [[1d6]] [[1d6]] [[1d6]]
+--Attack:| [[ [$ATK] 4@{defdtype}!!k1 +  1 + ?{Modifier|0} ]] vs 5
+--Location:| [[ [$LOC] [NH] 1d20 ]]
+--Damage:| [[ [$DAM] [NH] 4d8!! + 2 ]]
+--Head:| + [[ [$HEAD] [NH] 2d8!! ]]
+--Gizards:| +  [[ [$GIZ] [NH] 1d8!! ]]
+
 }}
+
+Program ended with exit code: 0
