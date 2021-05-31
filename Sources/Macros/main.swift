@@ -1,20 +1,27 @@
+
+// @{repeating_fightin_$1_fightinlvl}
+// melee level index
+
 enum Kind {
-    case ranged(Gun)
-    case melee
+    case ranged(Weapon)
+    case melee(Weapon)
     case initiative(Int)
     
 }
 
-struct Gun {
+struct Weapon {
     let name: String
     let level: Int
     let hitBonus: Int
     let damage: String
     let head: String
     let gizards: String
+    let audio: String?
 }
 
-let fancyWinchester = Gun(name: "Fancified '76", level: 4, hitBonus: 1, damage: "4d8!! + 2", head: "2d8!!", gizards: "1d8!!")
+
+let fancyWinchester = Weapon(name: "Fancified '76", level: 6, hitBonus: 1, damage: "4d8!! + 2", head: "2d8!!", gizards: "1d8!!", audio: "Rifle")
+let cutlass = Weapon(name: "Cutlass", level: 6, hitBonus: 0, damage: "2d8!!", head: "2d8!!", gizards: "1d8!!", audio: "Cutlas")
 
 struct Macro {
     let name: String
@@ -40,6 +47,26 @@ struct Macro {
         return (fixedTarget == nil) ? "vs \(target)" : ""
     }
     
+    func raises(count: Int) -> (String, String) {
+        var tests: [String] = []
+        var labels: [String] = []
+        var skip = 2
+        for n in 1 ... count {
+            tests.insert("--?! $ATK / \(n+1) -ge \(target) !? skipto*\(count-n+2)|RaiseLabel\(n)", at: 0)
+            labels.insert(
+                """
+                --:RaiseLabel\(n)|
+                --Raises: *\(n) |  [^ATK] is \(n) raises \(versusTarget)
+                --skipto*\((2*count)-n+3)|Done
+                """, at: 0)
+            skip += 1
+        }
+        
+        let raiseTests = tests.joined(separator: "\n")
+        let raiseLabels = labels.joined(separator: "\n")
+        return (raiseTests, raiseLabels)
+    }
+    
     var location: String {
         switch kind {
             case .initiative:
@@ -48,31 +75,16 @@ struct Macro {
             default:
                 return
                     """
-                    --?? $LOC == 1 OR $LOC == 2 ?? Hits \(versusTarget) *1 | For [^DAM] in the Right Leg
-                    --?? $LOC == 3 OR $LOC == 4 ?? Hits \(versusTarget) *2 | For [^DAM] in the Left Leg
-                    --?? $LOC == 11 OR $LOC == 12 ?? Hits \(versusTarget) *3 | For [^DAM] in the Right Arm
-                    --?? $LOC == 13 OR $LOC == 14 ?? Hits \(versusTarget) *4 | For [^DAM] in the Left Leg
-                    --?? $LOC >= 15 AND $LOC <= 19 ?? Hits \(versusTarget) *5 | For [^DAM] in the Upper Guts
-                    --?? $LOC >= 5 AND $LOC <= 9 ?? Hits \(versusTarget) *6 | For [^DAM] in the Lower Guts
-                    --?? $LOC == 10 ?? Hits \(versusTarget) *7 | For [^DAM] + [^GIZ] in the Gizzards
-                    --?? $LOC == 20 ?? Hits \(versusTarget) *8 | For [^DAM] + [^HEAD] in the Head
-                    --skipto*2|Done
-
-                    --:Missed| Skip here for a miss
-                    --Missed :| $$#900|***[^ATK] is a miss \(versusTarget)!***$$
-
-                    --:Done|
+                    --?? $LOC == 1 OR $LOC == 2 ?? Hits \(versusTarget) *1 | For \(damage) in the Right Leg
+                    --?? $LOC == 3 OR $LOC == 4 ?? Hits \(versusTarget) *2 | For \(damage) in the Left Leg
+                    --?? $LOC == 11 OR $LOC == 12 ?? Hits \(versusTarget) *3 | For \(damage) in the Right Arm
+                    --?? $LOC == 13 OR $LOC == 14 ?? Hits \(versusTarget) *4 | For \(damage) in the Left Leg
+                    --?? $LOC >= 15 AND $LOC <= 19 ?? Hits \(versusTarget) *5 | For \(damage) in the Upper Guts
+                    --?? $LOC >= 5 AND $LOC <= 9 ?? Hits \(versusTarget) *6 | For \(damage) in the Lower Guts
+                    --?? $LOC == 10 ?? Hits \(versusTarget) *7 | For \(damage) + [^GIZ] in the Gizzards
+                    --?? $LOC == 20 ?? Hits \(versusTarget) *8 | For \(damage) + [^HEAD] in the Head
 
                     """
-
-            //                    --?? ( $ATK >= ?{Target} ) AND ( $LOC == 1 OR $LOC == 2 ) ?? Hits For:| [^DAM] in the Right Leg
-            //                    --?? ( $ATK >= ?{Target} ) AND ( $LOC == 3 OR $LOC == 4 ) ?? Hits For:| [^DAM] in the Left Leg
-            //                    --?? ( $ATK >= ?{Target} ) AND ( $LOC == 11 OR $LOC == 12 ) ?? Hits For:| [^DAM] in the Right Arm
-            //                    --?? ( $ATK >= ?{Target} ) AND ( $LOC == 13 OR $LOC == 14 ) ?? Hits For:| [^DAM] in the Left Leg
-            //                    --?? ( $ATK >= ?{Target} ) AND ( $LOC >= 15 AND $LOC <= 19 ) ?? Hits For:| [^DAM] in the Upper Guts
-            //                    --?? ( $ATK >= ?{Target} ) AND ( $LOC >= 5 AND $LOC <= 9 ) ?? Hits For:| [^DAM] in the Lower Guts
-            //                    --?? ( $ATK >= ?{Target} ) AND ( $LOC == 10 ) ?? Hits For:| [^DAM] + [^GIZ] in the Gizzards
-            //                    --?? ( $ATK >= ?{Target} ) AND ( $LOC == 20 ) ?? Hits For:| [^DAM] + [^HEAD] in the Head
 
         }
     }
@@ -87,12 +99,21 @@ struct Macro {
     
     var right: String {
         switch kind {
-            case .melee: return label
-            case .ranged(let gun): return gun.name
+            case .melee(let weapon): return weapon.name
+            case .ranged(let weapon): return weapon.name
             case .initiative: return "@{quilvl}@{quidtype}"
         }
     }
 
+    var damage: String {
+        switch kind {
+            case .melee:
+                return "[^DAM] + [^STR]"
+                
+            default:
+                return "[^DAM]"
+        }
+    }
     var body: String {
         switch kind {
             case .initiative:
@@ -111,42 +132,17 @@ struct Macro {
                 }
                 return text
                 
-            case .ranged:
-                
-                var tests: [String] = []
-                var labels: [String] = []
-                var skip = 2
+            case .ranged, .melee:
                 let count = 10
-                for n in 1 ... count {
-                    tests.insert("--?! $ATK / \(n+1) -ge \(target) !? skipto*\(count-n+2)|RaiseLabel\(n)", at: 0)
-                    labels.insert(
-                        """
-                        --:RaiseLabel\(n)|
-                        --!Raises *\(n) |  [^ATK] is \(n) raises \(versusTarget)
-                        --skipto*\((2*count)-n+3)|Done
-                        """, at: 0)
-                    skip += 1
-                }
-                
-                let raiseTests = tests.joined(separator: "\n")
-                let raiseLabels = labels.joined(separator: "\n")
-                
-                return
-                    """
+                let (raiseTests, raiseLabels) = raises(count: count)
+                return """
                     --?? $ATK < \(target) ?? skipto*1|Missed
                     
-                    --?? $LOC == 1 OR $LOC == 2 ?? Hits *1 | [^DAM] in the Right Leg
-                    --?? $LOC == 3 OR $LOC == 4 ?? Hits *2 | [^DAM] in the Left Leg
-                    --?? $LOC == 11 OR $LOC == 12 ?? Hits *3 | [^DAM] in the Right Arm
-                    --?? $LOC == 13 OR $LOC == 14 ?? Hits *4 | [^DAM] in the Left Leg
-                    --?? $LOC >= 15 AND $LOC <= 19 ?? Hits *5 | [^DAM] in the Upper Guts
-                    --?? $LOC >= 5 AND $LOC <= 9 ?? Hits *6 | [^DAM] in the Lower Guts
-                    --?? $LOC == 10 ?? Hits *7 | [^DAM] + [^GIZ] in the Gizzards
-                    --?? $LOC == 20 ?? Hits *8 | [^DAM] + [^HEAD] in the Head
-                    
+                    \(location)
+                    --~~~
+
                     \(raiseTests)
                     --skipto*\(count+2)|Done
-
                     \(raiseLabels)
 
                     --:Missed| Skip here for a miss
@@ -156,9 +152,6 @@ struct Macro {
 
 
                     """
-                
-            default:
-                return ""
         }
     }
 
@@ -176,22 +169,40 @@ struct Macro {
     
     var rolls: String {
         switch kind {
-            case .melee:
-                return "loc: [[ [$LOC] 1d20 + 2 ]] str: [[ [$STR] 3d8!!k1 + ?{Damage Mod|0} ]] + wep: [[ [$WEP] 2d8!! ]] head: [[ [$HEAD] 2d8!! ]] giz: [[ [$GIZ] 1d8!! ]]"
-
-            case .ranged(let gun):
+            case .melee(let weapon):
                 return
                     """
-                    --Attack:| [[ [$ATK] \(gun.level)@{defdtype}!!k1 +  \(gun.hitBonus) + ?{Modifier|0} ]]
+                    --Attack:| [[ [$ATK] \(weapon.level)@{nimdtype}!!k1 + \(weapon.hitBonus) + ?{Modifier|0} ]]
                     --Location:| [[ [$LOC] [NH] 1d20 ]]
-                    --Damage:| [[ [$DAM] [NH] \(gun.damage) ]]
-                    --Head:| + [[ [$HEAD] [NH] \(gun.head) ]]
-                    --Gizards:| +  [[ [$GIZ] [NH] \(gun.gizards) ]]
+                    --Damage:| Weapon [[ [$DAM] [NH] \(weapon.damage) ]] Strength [[ [$STR] [NH] 3d8!!k1 ]]
+                    --Extra:| +Head [[ [$HEAD] [NH] \(weapon.head) ]] +Gizzards  [[ [$GIZ] [NH] \(weapon.gizards) ]]
+                    """
+
+            case .ranged(let weapon):
+                return
+                    """
+                    --Attack:| [[ [$ATK] \(weapon.level)@{defdtype}!!k1 + \(weapon.hitBonus) + ?{Modifier|0} ]]
+                    --Location:| [[ [$LOC] [NH] 1d20 ]]
+                    --Damage:| [[ [$DAM] [NH] \(weapon.damage) ]]
+                    --Extra:| +Head [[ [$HEAD] [NH] \(weapon.head) ]] +Gizzards  [[ [$GIZ] [NH] \(weapon.gizards) ]]
                     """
 
             case .initiative(let level):
                 return "[[ [$INIT] 1 + floor( ( \(level)@{quidtype}!!k1 + ?{bonus|0} ) / 5 ) ]]"
         }
+    }
+    
+    var audio: String {
+        switch kind {
+            case .melee(let weapon), .ranged(let weapon):
+                if let audio = weapon.audio {
+                    return "--soundfx*1|_audio,play,nomenu|\(audio)"
+                }
+                
+            default:
+                break
+        }
+        return ""
     }
     
     var macro: String {
@@ -204,7 +215,7 @@ struct Macro {
         
         \(botch)\(body)--~~~
         \(rolls)
-        
+        \(audio)
         }}
         
         """
@@ -212,10 +223,10 @@ struct Macro {
 }
 
 let macros = [
-//    Macro("bowie", kind: .melee),
-//    Macro("brawlin", kind: .melee),
-    Macro("cutlass", kind: .melee),
-//    Macro("initiative", kind: .initiative(4)),
+    //    Macro("initiative", kind: .initiative(4)),
+    //    Macro("bowie", kind: .melee, fixedTarget: 5),
+    //    Macro("brawlin", kind: .melee, fixedTarget: 5),
+    Macro("cutlass", kind: .melee(cutlass), fixedTarget: 5),
 //    Macro("winchester", kind: .ranged(fancyWinchester), fixedTarget: 5),
 ]
 
