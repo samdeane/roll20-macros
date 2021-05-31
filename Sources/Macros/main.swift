@@ -20,19 +20,24 @@ struct Macro {
     let name: String
     let kind: Kind
     let label: String
+    let fixedTarget: Int?
     
-    init(_ name: String, kind: Kind, label: String = "") {
+    init(_ name: String, kind: Kind, label: String = "", fixedTarget: Int? = nil) {
         self.name = name
         self.kind = kind
         self.label = label
+        self.fixedTarget = fixedTarget
     }
     
     var target: String {
-        return "?{Target}"
+        return (fixedTarget == nil) ? "?{Target}" : "\(fixedTarget!)"
     }
     
+    var targetInput: String {
+        return (fixedTarget == nil) ? "vs ?{Target|5}" : "\(fixedTarget!)"
+    }
     var versusTarget: String {
-        return "vs \(target)"
+        return (fixedTarget == nil) ? "vs \(target)" : ""
     }
     
     var location: String {
@@ -128,7 +133,7 @@ struct Macro {
                 
                 return
                     """
-                    --?? $ATK < ?{Target|5} ?? skipto*1|Missed
+                    --?? $ATK < \(target) ?? skipto*1|Missed
                     
                     --?? $LOC == 1 OR $LOC == 2 ?? Hits *1 | [^DAM] in the Right Leg
                     --?? $LOC == 3 OR $LOC == 4 ?? Hits *2 | [^DAM] in the Left Leg
@@ -177,7 +182,7 @@ struct Macro {
             case .ranged(let gun):
                 return
                     """
-                    --Attack:| [[ [$ATK] \(gun.level)@{defdtype}!!k1 +  \(gun.hitBonus) + ?{Modifier|0} ]] vs ?{Target|5}
+                    --Attack:| [[ [$ATK] \(gun.level)@{defdtype}!!k1 +  \(gun.hitBonus) + ?{Modifier|0} ]]
                     --Location:| [[ [$LOC] [NH] 1d20 ]]
                     --Damage:| [[ [$DAM] [NH] \(gun.damage) ]]
                     --Head:| + [[ [$HEAD] [NH] \(gun.head) ]]
@@ -209,9 +214,9 @@ struct Macro {
 let macros = [
 //    Macro("bowie", kind: .melee),
 //    Macro("brawlin", kind: .melee),
-//    Macro("cutlass", kind: .melee),
+    Macro("cutlass", kind: .melee),
 //    Macro("initiative", kind: .initiative(4)),
-    Macro("winchester", kind: .ranged(fancyWinchester)),
+//    Macro("winchester", kind: .ranged(fancyWinchester), fixedTarget: 5),
 ]
 
 for macro in macros {
